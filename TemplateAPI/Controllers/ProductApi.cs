@@ -51,14 +51,28 @@ namespace TemplateAPI.Controllers
             stream.Seek(0, SeekOrigin.Begin);
             return File(stream, "product/zip", archiveName);
         }
-        [HttpPost("product/{todoItem}")]
-        public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItem todoItem)
-        {
-            _context.Item.Add(todoItem);
-            await _context.SaveChangesAsync();
 
-            //    return CreatedAtAction("GetTodoItem", new { id = todoItem.Id }, todoItem);
-            return CreatedAtAction(nameof(todoItem), new { id = todoItem.Id }, todoItem);
+        [HttpPost("product/images/upload")]
+        public async Task<ActionResult> UploadeImage()
+        {
+            var files = Request.Form.Files;
+            if(files == null || files.Count == 0)
+            {
+                return BadRequest("No files were selected");
+            }
+            foreach(var file in files)
+            {
+                var image = new TodoItem { Name = file.Name };
+                using (var stream = new MemoryStream())
+                {
+                    await file.CopyToAsync(stream);
+                    image.Data = stream.ToArray();
+                }
+                _context.Item.Add(image);
+            }
+            await _context.SaveChangesAsync();
+            return Ok("Images uploaded successfully.");
+            
         }
     }
 }
