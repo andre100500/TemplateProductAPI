@@ -53,7 +53,7 @@ namespace TemplateAPI.Controllers
         }
 
         [HttpPost("product/images/upload")]
-        public async Task<ActionResult> UploadeImage()
+        public async Task<ActionResult<TodoItem>> UploadeImage()
         {
             var files = Request.Form.Files;
             if(files == null || files.Count == 0)
