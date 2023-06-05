@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.IO.Compression;
 using TemplateAPI.Data;
@@ -9,10 +10,12 @@ namespace TemplateAPI.Controllers
     public class ProductApi : ControllerBase
     {
         private readonly ItemDBContext _context;
+        private readonly string rootPath;
 
         public ProductApi(ItemDBContext context)
         {
             _context = context;
+            rootPath = AppDomain.CurrentDomain.BaseDirectory;
         }
 
         [HttpGet("product/{id}")]
@@ -50,6 +53,25 @@ namespace TemplateAPI.Controllers
             }
             stream.Seek(0, SeekOrigin.Begin);
             return File(stream, "product/zip", archiveName);
+        }
+
+        [HttpGet("product/images/upload/{path}")]
+        public async Task<ActionResult<TodoItem>> FileUploadedImage(string fileName)
+        {
+            string filePath = Path.Combine(rootPath, fileName);
+            try
+            {
+                byte[] imageData = File.ReadAllBytes(filePath);
+                return new FileContentResult(imageData, "image/*");
+            }
+            catch (FileNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
 
         [HttpPost("product/images/upload")]
