@@ -54,7 +54,7 @@ namespace TemplateAPI.Controllers
             stream.Seek(0, SeekOrigin.Begin);
             return File(stream, "product/zip", archiveName);
         }
-
+        //TODO testing & fixis app 
         [HttpGet("product/images/upload/{path}")]
         public async Task<ActionResult<TodoItem>> FileUploadedImage(string fileName)
         {
