@@ -59,7 +59,7 @@ namespace TemplateAPI.Controllers
         }
         //TODO testing & fixis app 
         [HttpGet("product/images/upload/{path}")]
-        public  ActionResult<TodoItem> FileUploadedImage(string fileName)
+        public  ActionResult FileUploadedImage(string fileName)
         {
             string filePath = Path.Combine(rootPath, fileName);
             try
