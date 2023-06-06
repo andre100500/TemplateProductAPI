@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 using System.IO.Compression;
+using System.Net;
+using System.Net.Http.Headers;
 using TemplateAPI.Data;
 using TemplateAPI.Models;
 
@@ -61,8 +64,9 @@ namespace TemplateAPI.Controllers
             string filePath = Path.Combine(rootPath, fileName);
             try
             {
-                byte[] imageData = File.ReadAllBytes(filePath);
-                return new FileContentResult(imageData, "image/*");
+                var fileStream = new FileStream(filePath,FileMode.Open,FileAccess.Read);
+
+                return File(fileStream, "image/jpeg");
             }
             catch (FileNotFoundException)
             {
@@ -70,7 +74,7 @@ namespace TemplateAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return StatusCode(500,ex);
             }
         }
 
