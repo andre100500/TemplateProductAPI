@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using TemplateAPI.Data;
 using TemplateAPI.Models;
 
@@ -13,12 +14,12 @@ namespace TemplateAPI.Controllers
     public class ProductApi : ControllerBase
     {
         private readonly ItemDBContext _context;
-        private readonly string rootPath;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public ProductApi(ItemDBContext context)
+        public ProductApi(ItemDBContext context, IHttpClientFactory httpClientFactory)
         {
             _context = context;
-            rootPath = AppDomain.CurrentDomain.BaseDirectory;
+            _httpClientFactory = httpClientFactory;
         }
 
         [HttpGet("product/{id}")]
@@ -58,25 +59,28 @@ namespace TemplateAPI.Controllers
             return File(stream, "product/zip", archiveName);
         }
         //TODO testing & fixis app 
-        [HttpGet("product/images/upload/{path}")]
-        public  ActionResult FileUploadedImage(string fileName)
+        [HttpGet("product/images/upload/{imageName}")]
+        public async Task<ActionResult> FileUploadedImage(string imageName)
         {
-            string filePath = Path.Combine(rootPath, fileName);
             try
             {
-                var fileStream = new FileStream(filePath,FileMode.Open,FileAccess.Read);
+                string imageURL = $"https://images.com/images/{imageName}";
+                HttpClient client = _httpClientFactory.CreateClient();
+                HttpResponseMessage response = await client.GetAsync(imageURL);
+                response.EnsureSuccessStatusCode();
 
-                fileStream.Close();
+                byte[] imageBytes = await response.Content.ReadAsByteArrayAsync();
+                
+                return File(imageBytes, "image/jpeg");
 
-                return File(fileStream, "image/jpeg");
             }
-            catch (FileNotFoundException)
+            catch (HttpRequestException)
             {
                 return NotFound();
             }
             catch (Exception ex)
             {
-                return StatusCode(500,ex);
+                return StatusCode(500, ex.Message);
             }
         }
 
