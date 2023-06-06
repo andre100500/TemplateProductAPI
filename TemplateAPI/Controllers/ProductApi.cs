@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
@@ -70,6 +71,11 @@ namespace TemplateAPI.Controllers
                 response.EnsureSuccessStatusCode();
 
                 byte[] imageBytes = await response.Content.ReadAsByteArrayAsync();
+
+                if(imageBytes.IsNullOrEmpty())
+                {
+                    return BadRequest("Images not avaible or emty for you link");
+                }
                 
                 return File(imageBytes, "image/jpeg");
 
