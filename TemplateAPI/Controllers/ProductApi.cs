@@ -59,12 +59,14 @@ namespace TemplateAPI.Controllers
         }
         //TODO testing & fixis app 
         [HttpGet("product/images/upload/{path}")]
-        public async Task<ActionResult<TodoItem>> FileUploadedImage(string fileName)
+        public  ActionResult<TodoItem> FileUploadedImage(string fileName)
         {
             string filePath = Path.Combine(rootPath, fileName);
             try
             {
                 var fileStream = new FileStream(filePath,FileMode.Open,FileAccess.Read);
+
+                fileStream.Close();
 
                 return File(fileStream, "image/jpeg");
             }
